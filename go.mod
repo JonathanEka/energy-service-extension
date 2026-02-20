@@ -1,6 +1,6 @@
 module extend-custom-guild-service
 
-go 1.24.0
+go 1.23.0
 
 require (
 	github.com/AccelByte/accelbyte-go-sdk v0.85.0

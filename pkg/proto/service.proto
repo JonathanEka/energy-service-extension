@@ -4,9 +4,9 @@
 
 syntax = "proto3";
 
-option csharp_namespace = "AccelByte.Extend.ServiceExtension";
-option go_package = "accelbyte.net/extend/serviceextension";
-option java_package = "net.accelbyte.extend.serviceextension";
+option csharp_namespace = "AccelByte.Extend.EnergyService";
+option go_package = "extend-custom-guild-service/pkg/pb";
+option java_package = "net.accelbyte.extend.energyservice";
 option java_multiple_files = true;
 
 package service;
@@ -17,16 +17,39 @@ import "permission.proto";
 
 service Service {
 
-  rpc CreateOrUpdateGuildProgress (CreateOrUpdateGuildProgressRequest) returns (CreateOrUpdateGuildProgressResponse) {
-    option (permission.action) = CREATE;
-    option (permission.resource) = "ADMIN:NAMESPACE:{namespace}:CLOUDSAVE:RECORD";
+  // ============== PUBLIC ENDPOINTS (Game Client) ==============
+  // Player calls these with their own token. User ID extracted from token.
+
+  // Get my current energy state
+  rpc GetMyEnergy (GetMyEnergyRequest) returns (GetEnergyResponse) {
+    option (permission.action) = READ;
+    option (permission.resource) = "NAMESPACE:{namespace}:USER:{userId}:CLOUDSAVE:RECORD";
     option (google.api.http) = {
-      post: "/v1/admin/namespace/{namespace}/progress"
+      get: "/v1/public/namespace/{namespace}/users/{user_id}/energy"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get my energy"
+      description: "Get your current energy state. Automatically calculates regenerated energy since last update."
+      security: {
+        security_requirement: {
+          key: "Bearer"
+          value: {}
+        }
+      }
+    };
+  }
+
+  // Consume my energy for an action
+  rpc ConsumeMyEnergy (ConsumeMyEnergyRequest) returns (ConsumeEnergyResponse) {
+    option (permission.action) = UPDATE;
+    option (permission.resource) = "NAMESPACE:{namespace}:USER:{userId}:CLOUDSAVE:RECORD";
+    option (google.api.http) = {
+      post: "/v1/public/namespace/{namespace}/users/{user_id}/consume"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Update Guild progression"
-      description: "Update Guild progression if not existed yet will create a new one"
+      summary: "Consume my energy"
+      description: "Deduct energy for performing an in-game action. Returns error if insufficient energy."
       security: {
         security_requirement: {
           key: "Bearer"
@@ -36,15 +59,176 @@ service Service {
     };
   }
 
-  rpc GetGuildProgress (GetGuildProgressRequest) returns (GetGuildProgressResponse) {
+  // Refill my energy (from purchase, reward, etc.)
+  rpc RefillMyEnergy (RefillMyEnergyRequest) returns (RefillEnergyResponse) {
+    option (permission.action) = UPDATE;
+    option (permission.resource) = "NAMESPACE:{namespace}:USER:{userId}:CLOUDSAVE:RECORD";
+    option (google.api.http) = {
+      post: "/v1/public/namespace/{namespace}/users/{user_id}/refill"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Refill my energy"
+      description: "Add energy to your pool. Used for purchases, rewards, level ups, and daily bonuses."
+      security: {
+        security_requirement: {
+          key: "Bearer"
+          value: {}
+        }
+      }
+    };
+  }
+
+  // Get my inventory
+  rpc GetMyInventory (GetMyInventoryRequest) returns (GetInventoryResponse) {
+    option (permission.action) = READ;
+    option (permission.resource) = "NAMESPACE:{namespace}:USER:{userId}:CLOUDSAVE:RECORD";
+    option (google.api.http) = {
+      get: "/v1/public/namespace/{namespace}/users/{user_id}/inventory"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get my inventory"
+      description: "Get your current inventory of collected items."
+      security: {
+        security_requirement: {
+          key: "Bearer"
+          value: {}
+        }
+      }
+    };
+  }
+
+  // Get my energy configuration
+  rpc GetMyEnergyConfig (GetMyEnergyConfigRequest) returns (GetEnergyConfigResponse) {
+    option (permission.action) = READ;
+    option (permission.resource) = "NAMESPACE:{namespace}:USER:{userId}:CLOUDSAVE:RECORD";
+    option (google.api.http) = {
+      get: "/v1/public/namespace/{namespace}/users/{user_id}/config"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get my energy config"
+      description: "Get your max energy and regeneration rate settings."
+      security: {
+        security_requirement: {
+          key: "Bearer"
+          value: {}
+        }
+      }
+    };
+  }
+
+  // ============== ADMIN ENDPOINTS (Backend/Tools) ==============
+  // Admin or server-to-server calls. Explicit user ID in path.
+
+  // Get player's energy state (admin)
+  rpc GetEnergy (GetEnergyRequest) returns (GetEnergyResponse) {
     option (permission.action) = READ;
     option (permission.resource) = "ADMIN:NAMESPACE:{namespace}:CLOUDSAVE:RECORD";
     option (google.api.http) = {
-      get: "/v1/admin/namespace/{namespace}/progress/{guild_id}"
+      get: "/v1/admin/namespace/{namespace}/player/{user_id}/energy"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Get guild progression"
-      description: "Get guild progression"
+      summary: "[Admin] Get player energy"
+      description: "Get the current energy state for a player. Automatically calculates regenerated energy since last update."
+      security: {
+        security_requirement: {
+          key: "Bearer"
+          value: {}
+        }
+      }
+    };
+  }
+
+  // Consume player's energy (admin)
+  rpc ConsumeEnergy (ConsumeEnergyRequest) returns (ConsumeEnergyResponse) {
+    option (permission.action) = UPDATE;
+    option (permission.resource) = "ADMIN:NAMESPACE:{namespace}:CLOUDSAVE:RECORD";
+    option (google.api.http) = {
+      post: "/v1/admin/namespace/{namespace}/player/{user_id}/consume"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "[Admin] Consume player energy"
+      description: "Deduct energy for a player. Returns error if insufficient energy."
+      security: {
+        security_requirement: {
+          key: "Bearer"
+          value: {}
+        }
+      }
+    };
+  }
+
+  // Refill player's energy (admin)
+  rpc RefillEnergy (RefillEnergyRequest) returns (RefillEnergyResponse) {
+    option (permission.action) = UPDATE;
+    option (permission.resource) = "ADMIN:NAMESPACE:{namespace}:CLOUDSAVE:RECORD";
+    option (google.api.http) = {
+      post: "/v1/admin/namespace/{namespace}/player/{user_id}/refill"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "[Admin] Refill player energy"
+      description: "Add energy to a player's pool. Used for admin grants, corrections, or backend rewards."
+      security: {
+        security_requirement: {
+          key: "Bearer"
+          value: {}
+        }
+      }
+    };
+  }
+
+  // Get player's energy configuration (admin)
+  rpc GetEnergyConfig (GetEnergyConfigRequest) returns (GetEnergyConfigResponse) {
+    option (permission.action) = READ;
+    option (permission.resource) = "ADMIN:NAMESPACE:{namespace}:CLOUDSAVE:RECORD";
+    option (google.api.http) = {
+      get: "/v1/admin/namespace/{namespace}/player/{user_id}/config"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "[Admin] Get player energy config"
+      description: "Get the player's max energy and regeneration rate settings."
+      security: {
+        security_requirement: {
+          key: "Bearer"
+          value: {}
+        }
+      }
+    };
+  }
+
+  // Update player's energy configuration (admin)
+  rpc UpdateEnergyConfig (UpdateEnergyConfigRequest) returns (UpdateEnergyConfigResponse) {
+    option (permission.action) = UPDATE;
+    option (permission.resource) = "ADMIN:NAMESPACE:{namespace}:CLOUDSAVE:RECORD";
+    option (google.api.http) = {
+      put: "/v1/admin/namespace/{namespace}/player/{user_id}/config"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "[Admin] Update player energy config"
+      description: "Update max energy or regen rate for a player."
+      security: {
+        security_requirement: {
+          key: "Bearer"
+          value: {}
+        }
+      }
+    };
+  }
+
+  // Reset player's energy state (admin only)
+  rpc ResetEnergy (ResetEnergyRequest) returns (ResetEnergyResponse) {
+    option (permission.action) = DELETE;
+    option (permission.resource) = "ADMIN:NAMESPACE:{namespace}:CLOUDSAVE:RECORD";
+    option (google.api.http) = {
+      post: "/v1/admin/namespace/{namespace}/player/{user_id}/reset"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "[Admin] Reset player energy"
+      description: "Reset a player's energy to default state. Admin use only."
       security: {
         security_requirement: {
           key: "Bearer"
@@ -55,37 +239,165 @@ service Service {
   }
 }
 
-message CreateOrUpdateGuildProgressRequest {
+// ============== PUBLIC Request Messages ==============
+// user_id from path, validated against token by AGS gateway
+
+message GetMyEnergyRequest {
   string namespace = 1;
-  GuildProgress guild_progress = 2;
+  string user_id = 2;
 }
 
-message CreateOrUpdateGuildProgressResponse {
-  GuildProgress guild_progress = 1;
-}
-
-message GetGuildProgressRequest {
+message ConsumeMyEnergyRequest {
   string namespace = 1;
-  string guild_id = 2;
+  string user_id = 2;
+  int32 amount = 3;           // Energy to consume
+  string action_type = 4;     // Type: plant, harvest, visit, craft, explore, special
+  string action_id = 5;       // Optional specific action ID for analytics
 }
 
-message GetGuildProgressResponse {
-  GuildProgress guild_progress = 1;
+message RefillMyEnergyRequest {
+  string namespace = 1;
+  string user_id = 2;
+  int32 amount = 3;           // Energy to add
+  string source = 4;          // Source: purchase, reward, levelup, daily, ad_watch, gift
+  string item_id = 5;         // Item ID if source is 'purchase'
+  string transaction_id = 6;  // Transaction ID for validation
 }
 
-message GuildProgress {
-  string guild_id = 1;
-  string namespace = 2;
-  map<string, int32> objectives = 3;
+message GetMyEnergyConfigRequest {
+  string namespace = 1;
+  string user_id = 2;
 }
 
-// OpenAPI options for the entire API.
+message GetMyInventoryRequest {
+  string namespace = 1;
+  string user_id = 2;
+}
+
+// ============== ADMIN Request Messages ==============
+// Explicit user_id for admin access
+
+message GetEnergyRequest {
+  string namespace = 1;
+  string user_id = 2;
+}
+
+message ConsumeEnergyRequest {
+  string namespace = 1;
+  string user_id = 2;
+  int32 amount = 3;           // Energy to consume
+  string action_type = 4;     // Type: plant, harvest, visit, craft, explore, special
+  string action_id = 5;       // Optional specific action ID for analytics
+}
+
+message RefillEnergyRequest {
+  string namespace = 1;
+  string user_id = 2;
+  int32 amount = 3;           // Energy to add
+  string source = 4;          // Source: purchase, reward, levelup, daily, ad_watch, gift
+  string item_id = 5;         // Item ID if source is 'purchase'
+  string transaction_id = 6;  // Transaction ID for validation
+}
+
+message GetEnergyConfigRequest {
+  string namespace = 1;
+  string user_id = 2;
+}
+
+message UpdateEnergyConfigRequest {
+  string namespace = 1;
+  string user_id = 2;
+  int32 max_energy = 3;           // New max energy (optional, 0 = no change)
+  int32 regen_rate_seconds = 4;   // New regen rate in seconds (optional, 0 = no change)
+}
+
+message ResetEnergyRequest {
+  string namespace = 1;
+  string user_id = 2;
+}
+
+// ============== Response Messages ==============
+
+message GetEnergyResponse {
+  EnergyState energy_state = 1;
+}
+
+message ConsumeEnergyResponse {
+  EnergyState energy_state = 1;
+  bool success = 2;
+  string message = 3;
+  repeated LootItem loot = 4;  // Loot earned from this action
+}
+
+// Loot item dropped from an action
+message LootItem {
+  string item_id = 1;
+  string item_name = 2;
+  int32 quantity = 3;
+}
+
+message RefillEnergyResponse {
+  EnergyState energy_state = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+message GetEnergyConfigResponse {
+  EnergyConfig config = 1;
+}
+
+message GetInventoryResponse {
+  repeated InventoryItem items = 1;
+}
+
+// Item in player's inventory
+message InventoryItem {
+  string item_id = 1;
+  string item_name = 2;
+  int32 quantity = 3;
+}
+
+message UpdateEnergyConfigResponse {
+  EnergyConfig config = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+message ResetEnergyResponse {
+  EnergyState energy_state = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+// ============== Data Models ==============
+
+message EnergyState {
+  string user_id = 1;
+  int32 current_energy = 2;       // Current energy amount
+  int32 max_energy = 3;           // Maximum energy capacity
+  int64 last_update_time = 4;     // Unix timestamp of last update
+  int32 regen_rate_seconds = 5;   // Seconds per energy point
+  int64 next_regen_time = 6;      // Unix timestamp when next energy regenerates
+  int32 energy_to_max = 7;        // Energy needed to reach max
+  int64 time_to_max_seconds = 8;  // Seconds until full
+}
+
+message EnergyConfig {
+  string user_id = 1;
+  int32 max_energy = 2;           // Maximum energy capacity
+  int32 regen_rate_seconds = 3;   // Seconds per energy point
+  int32 level = 4;                // Energy system level
+}
+
+// ============== OpenAPI Options ==============
+
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: {
-    title: "Service API";
+    title: "Energy Service API";
     version: "1.0";
+    description: "Manages player energy for action-based gameplay. Classic mobile game energy system with regeneration, consumption, and refill mechanics.";
   };
-  base_path: "/service";
+  base_path: "/energy-based-game";
 
   security_definitions: {
     security: {

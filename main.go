@@ -166,9 +166,9 @@ func main() {
 
 	cloudSaveStorage := storage.NewCloudSaveStorage(&adminGameRecordService)
 
-	// Register Guild Service
-	myServiceServer := service.NewMyServiceServer(tokenRepo, configRepo, refreshRepo, cloudSaveStorage)
-	pb.RegisterServiceServer(s, myServiceServer)
+	// Register Energy Service
+	energyServiceServer := service.NewEnergyServiceServer(tokenRepo, configRepo, refreshRepo, cloudSaveStorage)
+	pb.RegisterServiceServer(s, energyServiceServer)
 
 	// Enable gRPC Reflection
 	reflection.Register(s)

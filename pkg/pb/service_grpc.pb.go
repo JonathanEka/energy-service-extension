@@ -8,7 +8,7 @@
 // - protoc             v3.21.9
 // source: service.proto
 
-package serviceextension
+package pb
 
 import (
 	context "context"
@@ -23,16 +23,45 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Service_CreateOrUpdateGuildProgress_FullMethodName = "/service.Service/CreateOrUpdateGuildProgress"
-	Service_GetGuildProgress_FullMethodName            = "/service.Service/GetGuildProgress"
+	Service_GetMyEnergy_FullMethodName        = "/service.Service/GetMyEnergy"
+	Service_ConsumeMyEnergy_FullMethodName    = "/service.Service/ConsumeMyEnergy"
+	Service_RefillMyEnergy_FullMethodName     = "/service.Service/RefillMyEnergy"
+	Service_GetMyInventory_FullMethodName     = "/service.Service/GetMyInventory"
+	Service_GetMyEnergyConfig_FullMethodName  = "/service.Service/GetMyEnergyConfig"
+	Service_GetEnergy_FullMethodName          = "/service.Service/GetEnergy"
+	Service_ConsumeEnergy_FullMethodName      = "/service.Service/ConsumeEnergy"
+	Service_RefillEnergy_FullMethodName       = "/service.Service/RefillEnergy"
+	Service_GetEnergyConfig_FullMethodName    = "/service.Service/GetEnergyConfig"
+	Service_UpdateEnergyConfig_FullMethodName = "/service.Service/UpdateEnergyConfig"
+	Service_ResetEnergy_FullMethodName        = "/service.Service/ResetEnergy"
 )
 
 // ServiceClient is the client API for Service service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ServiceClient interface {
-	CreateOrUpdateGuildProgress(ctx context.Context, in *CreateOrUpdateGuildProgressRequest, opts ...grpc.CallOption) (*CreateOrUpdateGuildProgressResponse, error)
-	GetGuildProgress(ctx context.Context, in *GetGuildProgressRequest, opts ...grpc.CallOption) (*GetGuildProgressResponse, error)
+	// Get my current energy state
+	GetMyEnergy(ctx context.Context, in *GetMyEnergyRequest, opts ...grpc.CallOption) (*GetEnergyResponse, error)
+	// Consume my energy for an action
+	ConsumeMyEnergy(ctx context.Context, in *ConsumeMyEnergyRequest, opts ...grpc.CallOption) (*ConsumeEnergyResponse, error)
+	// Refill my energy (from purchase, reward, etc.)
+	RefillMyEnergy(ctx context.Context, in *RefillMyEnergyRequest, opts ...grpc.CallOption) (*RefillEnergyResponse, error)
+	// Get my inventory
+	GetMyInventory(ctx context.Context, in *GetMyInventoryRequest, opts ...grpc.CallOption) (*GetInventoryResponse, error)
+	// Get my energy configuration
+	GetMyEnergyConfig(ctx context.Context, in *GetMyEnergyConfigRequest, opts ...grpc.CallOption) (*GetEnergyConfigResponse, error)
+	// Get player's energy state (admin)
+	GetEnergy(ctx context.Context, in *GetEnergyRequest, opts ...grpc.CallOption) (*GetEnergyResponse, error)
+	// Consume player's energy (admin)
+	ConsumeEnergy(ctx context.Context, in *ConsumeEnergyRequest, opts ...grpc.CallOption) (*ConsumeEnergyResponse, error)
+	// Refill player's energy (admin)
+	RefillEnergy(ctx context.Context, in *RefillEnergyRequest, opts ...grpc.CallOption) (*RefillEnergyResponse, error)
+	// Get player's energy configuration (admin)
+	GetEnergyConfig(ctx context.Context, in *GetEnergyConfigRequest, opts ...grpc.CallOption) (*GetEnergyConfigResponse, error)
+	// Update player's energy configuration (admin)
+	UpdateEnergyConfig(ctx context.Context, in *UpdateEnergyConfigRequest, opts ...grpc.CallOption) (*UpdateEnergyConfigResponse, error)
+	// Reset player's energy state (admin only)
+	ResetEnergy(ctx context.Context, in *ResetEnergyRequest, opts ...grpc.CallOption) (*ResetEnergyResponse, error)
 }
 
 type serviceClient struct {
@@ -43,20 +72,110 @@ func NewServiceClient(cc grpc.ClientConnInterface) ServiceClient {
 	return &serviceClient{cc}
 }
 
-func (c *serviceClient) CreateOrUpdateGuildProgress(ctx context.Context, in *CreateOrUpdateGuildProgressRequest, opts ...grpc.CallOption) (*CreateOrUpdateGuildProgressResponse, error) {
+func (c *serviceClient) GetMyEnergy(ctx context.Context, in *GetMyEnergyRequest, opts ...grpc.CallOption) (*GetEnergyResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CreateOrUpdateGuildProgressResponse)
-	err := c.cc.Invoke(ctx, Service_CreateOrUpdateGuildProgress_FullMethodName, in, out, cOpts...)
+	out := new(GetEnergyResponse)
+	err := c.cc.Invoke(ctx, Service_GetMyEnergy_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serviceClient) GetGuildProgress(ctx context.Context, in *GetGuildProgressRequest, opts ...grpc.CallOption) (*GetGuildProgressResponse, error) {
+func (c *serviceClient) ConsumeMyEnergy(ctx context.Context, in *ConsumeMyEnergyRequest, opts ...grpc.CallOption) (*ConsumeEnergyResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetGuildProgressResponse)
-	err := c.cc.Invoke(ctx, Service_GetGuildProgress_FullMethodName, in, out, cOpts...)
+	out := new(ConsumeEnergyResponse)
+	err := c.cc.Invoke(ctx, Service_ConsumeMyEnergy_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) RefillMyEnergy(ctx context.Context, in *RefillMyEnergyRequest, opts ...grpc.CallOption) (*RefillEnergyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RefillEnergyResponse)
+	err := c.cc.Invoke(ctx, Service_RefillMyEnergy_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) GetMyInventory(ctx context.Context, in *GetMyInventoryRequest, opts ...grpc.CallOption) (*GetInventoryResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetInventoryResponse)
+	err := c.cc.Invoke(ctx, Service_GetMyInventory_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) GetMyEnergyConfig(ctx context.Context, in *GetMyEnergyConfigRequest, opts ...grpc.CallOption) (*GetEnergyConfigResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetEnergyConfigResponse)
+	err := c.cc.Invoke(ctx, Service_GetMyEnergyConfig_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) GetEnergy(ctx context.Context, in *GetEnergyRequest, opts ...grpc.CallOption) (*GetEnergyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetEnergyResponse)
+	err := c.cc.Invoke(ctx, Service_GetEnergy_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) ConsumeEnergy(ctx context.Context, in *ConsumeEnergyRequest, opts ...grpc.CallOption) (*ConsumeEnergyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConsumeEnergyResponse)
+	err := c.cc.Invoke(ctx, Service_ConsumeEnergy_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) RefillEnergy(ctx context.Context, in *RefillEnergyRequest, opts ...grpc.CallOption) (*RefillEnergyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RefillEnergyResponse)
+	err := c.cc.Invoke(ctx, Service_RefillEnergy_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) GetEnergyConfig(ctx context.Context, in *GetEnergyConfigRequest, opts ...grpc.CallOption) (*GetEnergyConfigResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetEnergyConfigResponse)
+	err := c.cc.Invoke(ctx, Service_GetEnergyConfig_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) UpdateEnergyConfig(ctx context.Context, in *UpdateEnergyConfigRequest, opts ...grpc.CallOption) (*UpdateEnergyConfigResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateEnergyConfigResponse)
+	err := c.cc.Invoke(ctx, Service_UpdateEnergyConfig_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) ResetEnergy(ctx context.Context, in *ResetEnergyRequest, opts ...grpc.CallOption) (*ResetEnergyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ResetEnergyResponse)
+	err := c.cc.Invoke(ctx, Service_ResetEnergy_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -67,8 +186,28 @@ func (c *serviceClient) GetGuildProgress(ctx context.Context, in *GetGuildProgre
 // All implementations should embed UnimplementedServiceServer
 // for forward compatibility.
 type ServiceServer interface {
-	CreateOrUpdateGuildProgress(context.Context, *CreateOrUpdateGuildProgressRequest) (*CreateOrUpdateGuildProgressResponse, error)
-	GetGuildProgress(context.Context, *GetGuildProgressRequest) (*GetGuildProgressResponse, error)
+	// Get my current energy state
+	GetMyEnergy(context.Context, *GetMyEnergyRequest) (*GetEnergyResponse, error)
+	// Consume my energy for an action
+	ConsumeMyEnergy(context.Context, *ConsumeMyEnergyRequest) (*ConsumeEnergyResponse, error)
+	// Refill my energy (from purchase, reward, etc.)
+	RefillMyEnergy(context.Context, *RefillMyEnergyRequest) (*RefillEnergyResponse, error)
+	// Get my inventory
+	GetMyInventory(context.Context, *GetMyInventoryRequest) (*GetInventoryResponse, error)
+	// Get my energy configuration
+	GetMyEnergyConfig(context.Context, *GetMyEnergyConfigRequest) (*GetEnergyConfigResponse, error)
+	// Get player's energy state (admin)
+	GetEnergy(context.Context, *GetEnergyRequest) (*GetEnergyResponse, error)
+	// Consume player's energy (admin)
+	ConsumeEnergy(context.Context, *ConsumeEnergyRequest) (*ConsumeEnergyResponse, error)
+	// Refill player's energy (admin)
+	RefillEnergy(context.Context, *RefillEnergyRequest) (*RefillEnergyResponse, error)
+	// Get player's energy configuration (admin)
+	GetEnergyConfig(context.Context, *GetEnergyConfigRequest) (*GetEnergyConfigResponse, error)
+	// Update player's energy configuration (admin)
+	UpdateEnergyConfig(context.Context, *UpdateEnergyConfigRequest) (*UpdateEnergyConfigResponse, error)
+	// Reset player's energy state (admin only)
+	ResetEnergy(context.Context, *ResetEnergyRequest) (*ResetEnergyResponse, error)
 }
 
 // UnimplementedServiceServer should be embedded to have
@@ -78,11 +217,38 @@ type ServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedServiceServer struct{}
 
-func (UnimplementedServiceServer) CreateOrUpdateGuildProgress(context.Context, *CreateOrUpdateGuildProgressRequest) (*CreateOrUpdateGuildProgressResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method CreateOrUpdateGuildProgress not implemented")
+func (UnimplementedServiceServer) GetMyEnergy(context.Context, *GetMyEnergyRequest) (*GetEnergyResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetMyEnergy not implemented")
 }
-func (UnimplementedServiceServer) GetGuildProgress(context.Context, *GetGuildProgressRequest) (*GetGuildProgressResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetGuildProgress not implemented")
+func (UnimplementedServiceServer) ConsumeMyEnergy(context.Context, *ConsumeMyEnergyRequest) (*ConsumeEnergyResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ConsumeMyEnergy not implemented")
+}
+func (UnimplementedServiceServer) RefillMyEnergy(context.Context, *RefillMyEnergyRequest) (*RefillEnergyResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RefillMyEnergy not implemented")
+}
+func (UnimplementedServiceServer) GetMyInventory(context.Context, *GetMyInventoryRequest) (*GetInventoryResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetMyInventory not implemented")
+}
+func (UnimplementedServiceServer) GetMyEnergyConfig(context.Context, *GetMyEnergyConfigRequest) (*GetEnergyConfigResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetMyEnergyConfig not implemented")
+}
+func (UnimplementedServiceServer) GetEnergy(context.Context, *GetEnergyRequest) (*GetEnergyResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetEnergy not implemented")
+}
+func (UnimplementedServiceServer) ConsumeEnergy(context.Context, *ConsumeEnergyRequest) (*ConsumeEnergyResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ConsumeEnergy not implemented")
+}
+func (UnimplementedServiceServer) RefillEnergy(context.Context, *RefillEnergyRequest) (*RefillEnergyResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RefillEnergy not implemented")
+}
+func (UnimplementedServiceServer) GetEnergyConfig(context.Context, *GetEnergyConfigRequest) (*GetEnergyConfigResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetEnergyConfig not implemented")
+}
+func (UnimplementedServiceServer) UpdateEnergyConfig(context.Context, *UpdateEnergyConfigRequest) (*UpdateEnergyConfigResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateEnergyConfig not implemented")
+}
+func (UnimplementedServiceServer) ResetEnergy(context.Context, *ResetEnergyRequest) (*ResetEnergyResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ResetEnergy not implemented")
 }
 func (UnimplementedServiceServer) testEmbeddedByValue() {}
 
@@ -104,38 +270,200 @@ func RegisterServiceServer(s grpc.ServiceRegistrar, srv ServiceServer) {
 	s.RegisterService(&Service_ServiceDesc, srv)
 }
 
-func _Service_CreateOrUpdateGuildProgress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateOrUpdateGuildProgressRequest)
+func _Service_GetMyEnergy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMyEnergyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServiceServer).CreateOrUpdateGuildProgress(ctx, in)
+		return srv.(ServiceServer).GetMyEnergy(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Service_CreateOrUpdateGuildProgress_FullMethodName,
+		FullMethod: Service_GetMyEnergy_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).CreateOrUpdateGuildProgress(ctx, req.(*CreateOrUpdateGuildProgressRequest))
+		return srv.(ServiceServer).GetMyEnergy(ctx, req.(*GetMyEnergyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Service_GetGuildProgress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetGuildProgressRequest)
+func _Service_ConsumeMyEnergy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConsumeMyEnergyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServiceServer).GetGuildProgress(ctx, in)
+		return srv.(ServiceServer).ConsumeMyEnergy(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Service_GetGuildProgress_FullMethodName,
+		FullMethod: Service_ConsumeMyEnergy_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).GetGuildProgress(ctx, req.(*GetGuildProgressRequest))
+		return srv.(ServiceServer).ConsumeMyEnergy(ctx, req.(*ConsumeMyEnergyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_RefillMyEnergy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RefillMyEnergyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).RefillMyEnergy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_RefillMyEnergy_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).RefillMyEnergy(ctx, req.(*RefillMyEnergyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_GetMyInventory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMyInventoryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).GetMyInventory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_GetMyInventory_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).GetMyInventory(ctx, req.(*GetMyInventoryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_GetMyEnergyConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMyEnergyConfigRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).GetMyEnergyConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_GetMyEnergyConfig_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).GetMyEnergyConfig(ctx, req.(*GetMyEnergyConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_GetEnergy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEnergyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).GetEnergy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_GetEnergy_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).GetEnergy(ctx, req.(*GetEnergyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_ConsumeEnergy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConsumeEnergyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).ConsumeEnergy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_ConsumeEnergy_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).ConsumeEnergy(ctx, req.(*ConsumeEnergyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_RefillEnergy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RefillEnergyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).RefillEnergy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_RefillEnergy_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).RefillEnergy(ctx, req.(*RefillEnergyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_GetEnergyConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEnergyConfigRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).GetEnergyConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_GetEnergyConfig_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).GetEnergyConfig(ctx, req.(*GetEnergyConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_UpdateEnergyConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateEnergyConfigRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).UpdateEnergyConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_UpdateEnergyConfig_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).UpdateEnergyConfig(ctx, req.(*UpdateEnergyConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_ResetEnergy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ResetEnergyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).ResetEnergy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_ResetEnergy_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).ResetEnergy(ctx, req.(*ResetEnergyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -148,12 +476,48 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "CreateOrUpdateGuildProgress",
-			Handler:    _Service_CreateOrUpdateGuildProgress_Handler,
+			MethodName: "GetMyEnergy",
+			Handler:    _Service_GetMyEnergy_Handler,
 		},
 		{
-			MethodName: "GetGuildProgress",
-			Handler:    _Service_GetGuildProgress_Handler,
+			MethodName: "ConsumeMyEnergy",
+			Handler:    _Service_ConsumeMyEnergy_Handler,
+		},
+		{
+			MethodName: "RefillMyEnergy",
+			Handler:    _Service_RefillMyEnergy_Handler,
+		},
+		{
+			MethodName: "GetMyInventory",
+			Handler:    _Service_GetMyInventory_Handler,
+		},
+		{
+			MethodName: "GetMyEnergyConfig",
+			Handler:    _Service_GetMyEnergyConfig_Handler,
+		},
+		{
+			MethodName: "GetEnergy",
+			Handler:    _Service_GetEnergy_Handler,
+		},
+		{
+			MethodName: "ConsumeEnergy",
+			Handler:    _Service_ConsumeEnergy_Handler,
+		},
+		{
+			MethodName: "RefillEnergy",
+			Handler:    _Service_RefillEnergy_Handler,
+		},
+		{
+			MethodName: "GetEnergyConfig",
+			Handler:    _Service_GetEnergyConfig_Handler,
+		},
+		{
+			MethodName: "UpdateEnergyConfig",
+			Handler:    _Service_UpdateEnergyConfig_Handler,
+		},
+		{
+			MethodName: "ResetEnergy",
+			Handler:    _Service_ResetEnergy_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

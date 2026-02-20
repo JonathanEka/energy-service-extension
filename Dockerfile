@@ -11,7 +11,7 @@ FROM --platform=$BUILDPLATFORM ubuntu:22.04 AS proto-builder
 ENV DEBIAN_FRONTEND=noninteractive
 
 ARG PROTOC_VERSION=21.9
-ARG GO_VERSION=1.24.10
+ARG GO_VERSION=1.23.6
 
 # Configure apt and install packages
 RUN apt-get update \
@@ -77,7 +77,7 @@ RUN chmod +x proto.sh && \
 # ----------------------------------------
 # Stage 2: gRPC Server Builder
 # ----------------------------------------
-FROM --platform=$BUILDPLATFORM golang:1.24 AS builder
+FROM --platform=$BUILDPLATFORM golang:1.23 AS builder
 
 ARG TARGETOS
 ARG TARGETARCH
@@ -89,18 +89,15 @@ ARG CGO_ENABLED=0
 # Set working directory
 WORKDIR /build
 
-# Copy and download the dependencies for application
-COPY go.mod go.sum ./
-RUN go mod download
-
-# Copy application code
+# Copy application code (go mod tidy will handle dependencies)
 COPY . .
 
 # Copy generated protobuf files from stage 1
 COPY --from=proto-builder /build/pkg/pb pkg/pb
 
-# Build the Go application binary for the target OS and architecture
-RUN go build -v -modcacherw -o /output/$TARGETOS/$TARGETARCH/service .
+# Tidy modules and build the Go application binary
+# GOTOOLCHAIN=auto allows downloading newer Go if dependencies require it
+RUN GOTOOLCHAIN=auto go mod tidy && GOTOOLCHAIN=auto go build -v -modcacherw -o /output/$TARGETOS/$TARGETARCH/service .
 
 # ----------------------------------------
 # Stage 3: Runtime Container

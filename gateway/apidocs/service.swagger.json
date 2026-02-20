@@ -1,7 +1,8 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "Service API",
+    "title": "Energy Service API",
+    "description": "Manages player energy for action-based gameplay. Classic mobile game energy system with regeneration, consumption, and refill mechanics.",
     "version": "1.0"
   },
   "tags": [
@@ -9,7 +10,7 @@
       "name": "Service"
     }
   ],
-  "basePath": "/service",
+  "basePath": "/energy-based-game",
   "consumes": [
     "application/json"
   ],
@@ -17,16 +18,341 @@
     "application/json"
   ],
   "paths": {
-    "/v1/admin/namespace/{namespace}/progress": {
-      "post": {
-        "summary": "Update Guild progression",
-        "description": "Update Guild progression if not existed yet will create a new one",
-        "operationId": "Service_CreateOrUpdateGuildProgress",
+    "/v1/admin/namespace/{namespace}/player/{userId}/config": {
+      "get": {
+        "summary": "[Admin] Get player energy config",
+        "description": "Get the player's max energy and regeneration rate settings.",
+        "operationId": "Service_GetEnergyConfig",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/serviceCreateOrUpdateGuildProgressResponse"
+              "$ref": "#/definitions/serviceGetEnergyConfigResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "namespace",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Service"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      },
+      "put": {
+        "summary": "[Admin] Update player energy config",
+        "description": "Update max energy or regen rate for a player.",
+        "operationId": "Service_UpdateEnergyConfig",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/serviceUpdateEnergyConfigResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "namespace",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ServiceUpdateEnergyConfigBody"
+            }
+          }
+        ],
+        "tags": [
+          "Service"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/admin/namespace/{namespace}/player/{userId}/consume": {
+      "post": {
+        "summary": "[Admin] Consume player energy",
+        "description": "Deduct energy for a player. Returns error if insufficient energy.",
+        "operationId": "Service_ConsumeEnergy",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/serviceConsumeEnergyResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "namespace",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ServiceConsumeEnergyBody"
+            }
+          }
+        ],
+        "tags": [
+          "Service"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/admin/namespace/{namespace}/player/{userId}/energy": {
+      "get": {
+        "summary": "[Admin] Get player energy",
+        "description": "Get the current energy state for a player. Automatically calculates regenerated energy since last update.",
+        "operationId": "Service_GetEnergy",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/serviceGetEnergyResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "namespace",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Service"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/admin/namespace/{namespace}/player/{userId}/refill": {
+      "post": {
+        "summary": "[Admin] Refill player energy",
+        "description": "Add energy to a player's pool. Used for admin grants, corrections, or backend rewards.",
+        "operationId": "Service_RefillEnergy",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/serviceRefillEnergyResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "namespace",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ServiceRefillEnergyBody"
+            }
+          }
+        ],
+        "tags": [
+          "Service"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/admin/namespace/{namespace}/player/{userId}/reset": {
+      "post": {
+        "summary": "[Admin] Reset player energy",
+        "description": "Reset a player's energy to default state. Admin use only.",
+        "operationId": "Service_ResetEnergy",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/serviceResetEnergyResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "namespace",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ServiceResetEnergyBody"
+            }
+          }
+        ],
+        "tags": [
+          "Service"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/public/namespace/{namespace}/users/me/config": {
+      "get": {
+        "summary": "Get my energy config",
+        "description": "Get your max energy and regeneration rate settings.",
+        "operationId": "Service_GetMyEnergyConfig",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/serviceGetEnergyConfigResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "namespace",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Service"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/public/namespace/{namespace}/users/me/consume": {
+      "post": {
+        "summary": "Consume my energy",
+        "description": "Deduct energy for performing an in-game action. Returns error if insufficient energy.",
+        "operationId": "Service_ConsumeMyEnergy",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/serviceConsumeEnergyResponse"
             }
           },
           "default": {
@@ -48,7 +374,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/ServiceCreateOrUpdateGuildProgressBody"
+              "$ref": "#/definitions/ServiceConsumeMyEnergyBody"
             }
           }
         ],
@@ -62,16 +388,90 @@
         ]
       }
     },
-    "/v1/admin/namespace/{namespace}/progress/{guildId}": {
+    "/v1/public/namespace/{namespace}/users/me/energy": {
       "get": {
-        "summary": "Get guild progression",
-        "description": "Get guild progression",
-        "operationId": "Service_GetGuildProgress",
+        "summary": "Get my energy",
+        "description": "Get your current energy state. Automatically calculates regenerated energy since last update.",
+        "operationId": "Service_GetMyEnergy",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/serviceGetGuildProgressResponse"
+              "$ref": "#/definitions/serviceGetEnergyResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "namespace",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Service"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/public/namespace/{namespace}/users/me/inventory": {
+      "get": {
+        "summary": "Get my inventory",
+        "description": "Get your current inventory of collected items.",
+        "operationId": "Service_GetMyInventory",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/serviceGetInventoryResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "namespace",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Service"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/v1/public/namespace/{namespace}/users/me/refill": {
+      "post": {
+        "summary": "Refill my energy",
+        "description": "Add energy to your pool. Used for purchases, rewards, level ups, and daily bonuses.",
+        "operationId": "Service_RefillMyEnergy",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/serviceRefillEnergyResponse"
             }
           },
           "default": {
@@ -89,10 +489,12 @@
             "type": "string"
           },
           {
-            "name": "guildId",
-            "in": "path",
+            "name": "body",
+            "in": "body",
             "required": true,
-            "type": "string"
+            "schema": {
+              "$ref": "#/definitions/ServiceRefillMyEnergyBody"
+            }
           }
         ],
         "tags": [
@@ -107,11 +509,101 @@
     }
   },
   "definitions": {
-    "ServiceCreateOrUpdateGuildProgressBody": {
+    "ServiceConsumeEnergyBody": {
       "type": "object",
       "properties": {
-        "guildProgress": {
-          "$ref": "#/definitions/serviceGuildProgress"
+        "amount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Energy to consume"
+        },
+        "actionType": {
+          "type": "string",
+          "title": "Type: plant, harvest, visit, craft, explore, special"
+        },
+        "actionId": {
+          "type": "string",
+          "title": "Optional specific action ID for analytics"
+        }
+      }
+    },
+    "ServiceConsumeMyEnergyBody": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Energy to consume"
+        },
+        "actionType": {
+          "type": "string",
+          "title": "Type: plant, harvest, visit, craft, explore, special"
+        },
+        "actionId": {
+          "type": "string",
+          "title": "Optional specific action ID for analytics"
+        }
+      }
+    },
+    "ServiceRefillEnergyBody": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Energy to add"
+        },
+        "source": {
+          "type": "string",
+          "title": "Source: purchase, reward, levelup, daily, ad_watch, gift"
+        },
+        "itemId": {
+          "type": "string",
+          "title": "Item ID if source is 'purchase'"
+        },
+        "transactionId": {
+          "type": "string",
+          "title": "Transaction ID for validation"
+        }
+      }
+    },
+    "ServiceRefillMyEnergyBody": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Energy to add"
+        },
+        "source": {
+          "type": "string",
+          "title": "Source: purchase, reward, levelup, daily, ad_watch, gift"
+        },
+        "itemId": {
+          "type": "string",
+          "title": "Item ID if source is 'purchase'"
+        },
+        "transactionId": {
+          "type": "string",
+          "title": "Transaction ID for validation"
+        }
+      }
+    },
+    "ServiceResetEnergyBody": {
+      "type": "object"
+    },
+    "ServiceUpdateEnergyConfigBody": {
+      "type": "object",
+      "properties": {
+        "maxEnergy": {
+          "type": "integer",
+          "format": "int32",
+          "title": "New max energy (optional, 0 = no change)"
+        },
+        "regenRateSeconds": {
+          "type": "integer",
+          "format": "int32",
+          "title": "New regen rate in seconds (optional, 0 = no change)"
         }
       }
     },
@@ -143,37 +635,193 @@
         }
       }
     },
-    "serviceCreateOrUpdateGuildProgressResponse": {
+    "serviceConsumeEnergyResponse": {
       "type": "object",
       "properties": {
-        "guildProgress": {
-          "$ref": "#/definitions/serviceGuildProgress"
+        "energyState": {
+          "$ref": "#/definitions/serviceEnergyState"
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        },
+        "loot": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/serviceLootItem"
+          },
+          "title": "Loot earned from this action"
         }
       }
     },
-    "serviceGetGuildProgressResponse": {
+    "serviceEnergyConfig": {
       "type": "object",
       "properties": {
-        "guildProgress": {
-          "$ref": "#/definitions/serviceGuildProgress"
+        "userId": {
+          "type": "string"
+        },
+        "maxEnergy": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Maximum energy capacity"
+        },
+        "regenRateSeconds": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Seconds per energy point"
+        },
+        "level": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Energy system level"
         }
       }
     },
-    "serviceGuildProgress": {
+    "serviceEnergyState": {
       "type": "object",
       "properties": {
-        "guildId": {
+        "userId": {
           "type": "string"
         },
-        "namespace": {
-          "type": "string"
+        "currentEnergy": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Current energy amount"
         },
-        "objectives": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "integer",
-            "format": "int32"
+        "maxEnergy": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Maximum energy capacity"
+        },
+        "lastUpdateTime": {
+          "type": "string",
+          "format": "int64",
+          "title": "Unix timestamp of last update"
+        },
+        "regenRateSeconds": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Seconds per energy point"
+        },
+        "nextRegenTime": {
+          "type": "string",
+          "format": "int64",
+          "title": "Unix timestamp when next energy regenerates"
+        },
+        "energyToMax": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Energy needed to reach max"
+        },
+        "timeToMaxSeconds": {
+          "type": "string",
+          "format": "int64",
+          "title": "Seconds until full"
+        }
+      }
+    },
+    "serviceGetEnergyConfigResponse": {
+      "type": "object",
+      "properties": {
+        "config": {
+          "$ref": "#/definitions/serviceEnergyConfig"
+        }
+      }
+    },
+    "serviceGetEnergyResponse": {
+      "type": "object",
+      "properties": {
+        "energyState": {
+          "$ref": "#/definitions/serviceEnergyState"
+        }
+      }
+    },
+    "serviceGetInventoryResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/serviceInventoryItem"
           }
+        }
+      }
+    },
+    "serviceInventoryItem": {
+      "type": "object",
+      "properties": {
+        "itemId": {
+          "type": "string"
+        },
+        "itemName": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "Item in player's inventory"
+    },
+    "serviceLootItem": {
+      "type": "object",
+      "properties": {
+        "itemId": {
+          "type": "string"
+        },
+        "itemName": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "Loot item dropped from an action"
+    },
+    "serviceRefillEnergyResponse": {
+      "type": "object",
+      "properties": {
+        "energyState": {
+          "$ref": "#/definitions/serviceEnergyState"
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "serviceResetEnergyResponse": {
+      "type": "object",
+      "properties": {
+        "energyState": {
+          "$ref": "#/definitions/serviceEnergyState"
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "serviceUpdateEnergyConfigResponse": {
+      "type": "object",
+      "properties": {
+        "config": {
+          "$ref": "#/definitions/serviceEnergyConfig"
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
         }
       }
     }

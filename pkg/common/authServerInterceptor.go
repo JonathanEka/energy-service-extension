@@ -8,6 +8,7 @@ import (
 	"context"
 	"crypto/rsa"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"strings"
@@ -158,6 +159,24 @@ func getNamespace() string {
 	return GetEnv("AB_NAMESPACE", "accelbyte")
 }
 
+func extractUserIDFromToken(token string) string {
+	parts := strings.Split(token, ".")
+	if len(parts) != 3 {
+		return ""
+	}
+	payload, err := base64.RawURLEncoding.DecodeString(parts[1])
+	if err != nil {
+		return ""
+	}
+	var claims struct {
+		Sub string `json:"sub"`
+	}
+	if err := json.Unmarshal(payload, &claims); err != nil {
+		return ""
+	}
+	return claims.Sub
+}
+
 func checkAuthorizationMetadata(ctx context.Context, permission *iam.Permission) error {
 	if Validator == nil {
 		return status.Error(codes.Internal, "authorization token validator is not set")
@@ -181,7 +200,12 @@ func checkAuthorizationMetadata(ctx context.Context, permission *iam.Permission)
 	token := strings.TrimPrefix(authorization, "Bearer ")
 	namespace := getNamespace()
 
-	err := Validator.Validate(token, permission, &namespace, nil)
+	var userIDPtr *string
+	if userID := extractUserIDFromToken(token); userID != "" {
+		userIDPtr = &userID
+	}
+
+	err := Validator.Validate(token, permission, &namespace, userIDPtr)
 
 	if err != nil {
 		return status.Error(codes.PermissionDenied, err.Error())

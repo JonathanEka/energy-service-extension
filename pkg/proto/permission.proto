@@ -4,7 +4,7 @@ package permission;
 import "google/protobuf/descriptor.proto";
 
 option csharp_namespace = "AccelByte.Extend.ServiceExtension";
-option go_package = "accelbyte.net/extend/serviceextension";
+option go_package = "extend-custom-guild-service/pkg/pb";
 option java_package = "net.accelbyte.extend.serviceextension";
 option java_multiple_files = true;
 
